@@ -9,17 +9,11 @@ export class CustomDirective {
 
   private specialKeys:string[] = ["Backspace","Tab","Enter","Shift","Control","Alt","CapsLock","Delete","ArrowLeft","ArrowUp","ArrowRight","ArrowDown"]
 
-  private patterns:{key:number,reg:RegExp}[] = 
+  private patterns:{key:number,pattern:RegExp,cleanPttern:RegExp}[] = 
   [
-    {key:Patterns.ALPHANUMERIC,reg:/^[a-zA-Z0-9أ-ي ]$/},
-    {key:Patterns.ONLY_LETTERS,reg:/^[\wأ-ي!-\/:-@[-`{-~ ]$/},
-    {key:Patterns.ONLY_ARABIC,reg:/^[أ-ي]$/},
-  ]
-  private cleanPattern:{key:number,reg:RegExp}[] = 
-  [
-    {key:Patterns.ALPHANUMERIC,reg:/[^a-zA-Z0-9أ-ي ]/g},
-    {key:Patterns.ONLY_LETTERS,reg:/[\d]/g},
-    {key:Patterns.ONLY_ARABIC,reg:/[^أ-ي]/g},
+    {key:Patterns.ALPHANUMERIC, pattern:/^[a-zA-Z0-9أ-ي ]$/, cleanPttern:/[^a-zA-Z0-9أ-ي ]/g},
+    {key:Patterns.ONLY_LETTERS, pattern:/^[\wأ-ي!-\/:-@[-`{-~ ]$/, cleanPttern:/[\d]/g},
+    {key:Patterns.ONLY_ARABIC, pattern:/^[أ-ي]$/, cleanPttern:/[^أ-ي]/g},
   ]
 
   constructor(private el:ElementRef) { }
@@ -29,13 +23,13 @@ export class CustomDirective {
     if (this.specialKeys.includes(key))
       return;
     const pattern = this.patterns.find(p=>p.key == this.patternKey)!
-    if (!pattern.reg.test(key) /*|| (key ==="." && this.el.nativeElement.value.includes("."))*/) {
+    if (!pattern.pattern.test(key) /*|| (key ==="." && this.el.nativeElement.value.includes("."))*/) {
       event.preventDefault(); 
     }
   }
   // For Pasting Cleans Data
   @HostListener('input') onInput(){
-    const cleanPattern = this.cleanPattern.find(p=>p.key == this.patternKey)!
-    this.el.nativeElement.value = this.el.nativeElement.value.replace(cleanPattern.reg,"")
+    const pattern = this.patterns.find(p=>p.key == this.patternKey)!
+    this.el.nativeElement.value = this.el.nativeElement.value.replace(pattern.cleanPttern,"")
   }
 }
